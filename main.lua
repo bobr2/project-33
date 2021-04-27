@@ -43,7 +43,6 @@ function love.mousemoved(x, y, dx, dy, istouch)
         local camx, camy = cam:getPosition()
 
         cam:setPosition(camx - dx, camy - dy)
-
     end
 end
 
@@ -59,7 +58,6 @@ function love.draw()
 end
  
 function love.keyreleased(key)
-    
     if key == "space" then
         sadboyb:applyLinearImpulse( 0, -1000 )
     elseif key == 'd' then
@@ -69,5 +67,14 @@ function love.keyreleased(key)
     end
 end
 
-
- 
+function love.wheelmoved(x, y)
+    local scale = cam.scale
+    if y > 0 then
+        cam:setScale(scale*1.1)
+    elseif y < 0 then
+        cam:setScale(scale*0.9)
+    end
+    
+    local x, y = cam:toWorld(love.mouse.getX( ), love.mouse.getY( ))
+    cam:setPosition(x, y)
+end
