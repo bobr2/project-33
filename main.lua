@@ -43,6 +43,9 @@ function love.load()
     npsfix = love.physics.newFixture( npsb, npshit)
 
     lastime = love.timer.getTime( )
+
+    
+    hpwallc = 100 
 end
 function love.mousepressed(x, y, button, istouch, presses) mp = true end
 
@@ -64,15 +67,22 @@ function love.draw()
          
     end)
     world:update(0.1)
-
+    time = love.timer.getTime( )
+    love.graphics.print('hp =', 0, 0)
+    if time - lastime > 1 then hpwallc = hpwallc - 1 
+    end
+    love.graphics.print(hpwallc , 30, 0)
+    
+      
     time = love.timer.getTime( )
     if time - lastime > 1 then
         lastime = love.timer.getTime()
 
-    local dx = wallc:getX() - npsb:getX()
-    local dy = wallc:getY() - npsb:getY()
-    if dx < 0 then dx = -1 else dx = 1 end
-    npsb:applyLinearImpulse( dx*50, 0)
+        local dx = wallc:getX() - npsb:getX()
+        local dy = wallc:getY() - npsb:getY()
+        if dx < 0 then dx = -1 else dx = 1 end
+        npsb:applyLinearImpulse( dx*50, 0)
+
     end
 end
  
