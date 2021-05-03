@@ -27,23 +27,27 @@ function love.load()
     grasshit = love.physics.newEdgeShape( 0, 0, cityw, 0 )
     grassfix = love.physics.newFixture( grass, grasshit)
     wall = love.physics.newBody( world, 0, 0, 'static')
+
     wallhit = love.physics.newEdgeShape( 0, 0, 0, 10000 )
     wallfix = love.physics.newFixture( wall, wallhit)
+
     wallr = love.physics.newBody( world, cityw, 0, 'static')
     wallhitr = love.physics.newEdgeShape( 0, 0, 0, 10000 )
     wallfixr = love.physics.newFixture( wallr, wallhitr)
+
     wallc = love.physics.newBody( world, cityw/2, 0, 'static')
     wallhitc = love.physics.newEdgeShape( 0, 0, 0, 10000 )
     wallfixc = love.physics.newFixture( wallc, wallhitc)
+
     sadboyb = love.physics.newBody( world, 100, 100, 'dynamic' )
     sadboyhit = love.physics.newRectangleShape( sadboyw, sadboyh )
     sadboyfix = love.physics.newFixture( sadboyb, sadboyhit)
+
     npsb = love.physics.newBody( world, cityw-100, 100, 'dynamic' )
     npshit = love.physics.newRectangleShape( npsw, npsh )
     npsfix = love.physics.newFixture( npsb, npshit)
 
     lastime = love.timer.getTime( )
-
     
     hpwallc = 100 
 end
@@ -63,29 +67,65 @@ function love.draw()
     cam:draw(function(l, t, w, h)
         love.graphics.draw(city, 0, 0, 0) 
         love.graphics.draw(sadboy, sadboyb:getX(), sadboyb:getY(), 0, 1, 1, sadboyw/2, sadboyh/2)
-        love.graphics.draw(nps, npsb:getX(), npsb:getY(), 0, 1, 1, npsw/2, npsh/2)
-         
+        if not npsb:isDestroyed() then
+            love.graphics.draw(nps, npsb:getX(), npsb:getY(), 0, 1, 1, npsw/2, npsh/2)     
+        end
     end)
-    world:update(0.1)
-    time = love.timer.getTime( )
-    love.graphics.print('hp =', 0, 0)
-    if time - lastime > 1 then hpwallc = hpwallc - 1 
-    end
-    love.graphics.print(hpwallc , 30, 0)
-    
-      
-    time = love.timer.getTime( )
-    if time - lastime > 1 then
+
+    delta = love.timer.getAverageDelta( )
+    world:update(delta*10)
+
+    time = love.timer.getTime()
+
+    love.graphics.print('hp = ' .. tostring(hpwallc), 0, 0)
+
+
+    if time - lastime > 1 then 
         lastime = love.timer.getTime()
 
-        local dx = wallc:getX() - npsb:getX()
-        local dy = wallc:getY() - npsb:getY()
-        if dx < 0 then dx = -1 else dx = 1 end
-        npsb:applyLinearImpulse( dx*50, 0)
+        if not npsb:isDestroyed() then
+            local dx = wallc:getX() - npsb:getX()
+            local dy = wallc:getY() - npsb:getY()
+            if dx < 0 then dx = -1 else dx = 1 end
 
+            npsb:applyLinearImpulse( dx*200, 0)
+        end
+    end
+
+    local contacts = world:getContacts( )
+    for _, contact in ipairs(contacts) do
+        fixtureA, fixtureB = contact:getFixtures( )
+        
+        if fixtureA ==  npsfix then
+            if fixtureB == wallfixc then
+                hpwallc = hpwallc - 1
+
+                npsb:destroy()
+                break
+            end
+        elseif fixtureB == npsfix then
+            if fixtureA == wallfixc then
+                hpwallc = hpwallc - 1
+
+                npsb:destroy()
+                break
+            end
+        end
+    end
+
+    if npsb:isDestroyed() then
+        npsb = love.physics.newBody( world, cityw-100, 100, 'dynamic' )
+        npshit = love.physics.newRectangleShape( npsw, npsh )
+        npsfix = love.physics.newFixture( npsb, npshit)
+    end
+
+    if hpwallc < 0 then
+        hpwallc = 0
+
+        love.graphics.print('BooM', 0, 0)
     end
 end
- 
+
 function love.keyreleased(key)
     if key == "space" then
         sadboyb:applyLinearImpulse( 0, -1000 )
