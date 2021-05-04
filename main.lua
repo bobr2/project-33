@@ -63,21 +63,13 @@ function love.mousemoved(x, y, dx, dy, istouch)
     end
 end
 
-function love.draw()
-    cam:draw(function(l, t, w, h)
-        love.graphics.draw(city, 0, 0, 0) 
-        love.graphics.draw(sadboy, sadboyb:getX(), sadboyb:getY(), 0, 1, 1, sadboyw/2, sadboyh/2)
-        if not npsb:isDestroyed() then
-            love.graphics.draw(nps, npsb:getX(), npsb:getY(), 0, 1, 1, npsw/2, npsh/2)     
-        end
-    end)
-
-    delta = love.timer.getAverageDelta( )
-    world:update(delta*10)
+dt = love.timer.getAverageDelta( )
+function love.update(dt)
+    world:update(dt*5)
 
     time = love.timer.getTime()
 
-    love.graphics.print('hp = ' .. tostring(hpwallc), 0, 0)
+    
 
 
     if time - lastime > 1 then 
@@ -124,6 +116,25 @@ function love.draw()
 
         love.graphics.print('BooM', 0, 0)
     end
+
+
+
+
+end
+
+
+function love.draw()
+    cam:draw(function(l, t, w, h)
+        love.graphics.draw(city, 0, 0, 0) 
+        love.graphics.draw(sadboy, sadboyb:getX(), sadboyb:getY(), 0, 1, 1, sadboyw/2, sadboyh/2)
+        if not npsb:isDestroyed() then
+            love.graphics.draw(nps, npsb:getX(), npsb:getY(), 0, 1, 1, npsw/2, npsh/2)     
+        end
+    end)
+
+    love.graphics.print('hp = ' .. tostring(hpwallc), 0, 0)
+
+    
 end
 
 function love.keyreleased(key)
