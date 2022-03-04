@@ -7,8 +7,10 @@ function love.load()
     cityw = city:getWidth()
     grassh = cityh - 60
     cam = gamera.new(0, 0, cityw, cityh)
+
+    
   
-    --success = love.window.setFullscreen( true )
+    success = love.window.setFullscreen( true )
     cam:setWindow(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
     
     imageData1 = love.image.newImageData('PNG/sadboy.png')
@@ -21,6 +23,13 @@ function love.load()
     npsw = nps:getWidth()
     npsh = nps:getHeight()
     
+   -- coinM = love.image.newImageData('coinM.png')
+   -- coinn = love.graphics.newImage(coinM)
+   -- coinW = coinn:getWidth()
+   -- coinH = coinn:getHeight()
+    --coinb = love.physics.newBody( world, 100, 100, 'static' )
+    --coinhit = love.physics.newRectangleShape( coinW, coinH)
+
      
     world = love.physics.newWorld( 0, 10, true )
     grass = love.physics.newBody( world, 0, grassh, 'static')
@@ -48,20 +57,44 @@ function love.load()
     npsfix = love.physics.newFixture( npsb, npshit)
 
     lastime = love.timer.getTime( )
-    
+    gmnimcoin = 0
+    gcoin = 0
     hpwallc = 100 
 end
 function love.mousepressed(x, y, button, istouch, presses) mp = true end
 
 function love.mousereleased(x, y, button, istouch, presses) mp = false end
 
+
+
+
+
+
 function love.mousemoved(x, y, dx, dy, istouch)
     if mp then
+        xc = love.mouse.getX()
+        yc = love.mouse.getY()
+        if xc > 100 then
+            if xc < 150 then
+                if yc > 100 then
+                    if yc < 150 then
+                    gcoin = gcoin + gmnimcoin
+                    gmnimcoin = 0
+                    end
+                end
+            end
+        end
         local camx, camy = cam:getPosition()
+
 
         cam:setPosition(camx - dx, camy - dy)
     end
 end
+
+
+
+
+
 
 dt = love.timer.getAverageDelta( )
 function love.update(dt)
@@ -69,11 +102,15 @@ function love.update(dt)
 
     time = love.timer.getTime()
 
-    
+    --if time - lastime > 5 then
+    --    lastime = love.timer.getTime()
+   --     gcoin = gcoin + 1
+    --end
 
 
     if time - lastime > 1 then 
         lastime = love.timer.getTime()
+        gmnimcoin = gmnimcoin + 1
 
         if not npsb:isDestroyed() then
             local dx = wallc:getX() - npsb:getX()
@@ -97,7 +134,7 @@ function love.update(dt)
             end
         elseif fixtureB == npsfix then
             if fixtureA == wallfixc then
-                hpwallc = hpwallc - 1
+                hpwallc = hpwallc - 10
 
                 npsb:destroy()
                 break
@@ -126,15 +163,21 @@ end
 function love.draw()
     cam:draw(function(l, t, w, h)
         love.graphics.draw(city, 0, 0, 0) 
+        --love.graphics.draw(coinn, coinb:getX(100), coinb:getY(100), 0)
         love.graphics.draw(sadboy, sadboyb:getX(), sadboyb:getY(), 0, 1, 1, sadboyw/2, sadboyh/2)
         if not npsb:isDestroyed() then
-            love.graphics.draw(nps, npsb:getX(), npsb:getY(), 0, 1, 1, npsw/2, npsh/2)     
+            love.graphics.draw(nps, npsb:getX(), npsb:getY(), 0, 1, 1, npsw/2, npsh/2)
+             
         end
+
+        love.graphics.rectangle("fill", 100, 100, 50, 50, 0, 0, segments )
     end)
 
     love.graphics.print('hp = ' .. tostring(hpwallc), 0, 0)
+    love.graphics.print('coin = ' .. tostring(gcoin), 0, 30)
 
     
+
 end
 
 function love.keyreleased(key)
