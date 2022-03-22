@@ -56,6 +56,21 @@ function love.load()
     npshit = love.physics.newRectangleShape( npsw, npsh )
     npsfix = love.physics.newFixture( npsb, npshit)
 
+    imageData3 = love.image.newImageData('solder.png')
+    solder = love.graphics.newImage(imageData3)
+
+    imageData4 = love.image.newImageData('bul.png')
+    bul = love.graphics.newImage(imageData4)
+    bulb = love.physics.newBody( world, cityw/2 + 300, cityh/2 +250, 'dynamic' )
+    bulh = bul:getHeight()
+    bulw = bul:getWidth()
+    bulhit = love.physics.newRectangleShape( bulw, bulh )
+    bulfix = love.physics.newFixture( bulb, bulhit)
+
+
+
+
+
     lastime = love.timer.getTime( )
     gmnimcoin = 0
     gcoin = 0
@@ -67,7 +82,7 @@ function love.mousereleased(x, y, button, istouch, presses) mp = false end
 
 
 
-
+pos = false
 
 
 function love.mousemoved(x, y, dx, dy, istouch)
@@ -85,6 +100,23 @@ function love.mousemoved(x, y, dx, dy, istouch)
             end
         end
         local camx, camy = cam:getPosition()
+         
+        if xc < 300 then
+            if xc < 350 then
+                if yc > 100 then
+                    if yc < 150 then
+                        if gcoin > 10 then
+                            pos = true
+                        end
+                    end
+                end
+            end
+        end                    
+
+
+                    
+                
+                
 
 
         cam:setPosition(camx - dx, camy - dy)
@@ -119,20 +151,23 @@ function love.update(dt)
 
             npsb:applyLinearImpulse( dx*200, 0)
         end
+
+        if not bulb:isDestroyed() then
+            local dx = npsb:getX() - bulb:getX()
+            local dy = npsb:getY() - bulb:getY()
+            if dx < 0 then dx = -1 else dx = 1 end
+
+            bulb:applyLinearImpulse( dx*200, 0)
+        end
+        
     end
 
     local contacts = world:getContacts( )
     for _, contact in ipairs(contacts) do
-        fixtureA, fixtureB = contact:getFixtures( )
+        fixtureA, fixtureB, fixtureC, fixtureD = contact:getFixtures( )
         
-        if fixtureA ==  npsfix then
-            if fixtureB == wallfixc then
-                hpwallc = hpwallc - 1
-
-                npsb:destroy()
-                break
-            end
-        elseif fixtureB == npsfix then
+        
+        if fixtureB == npsfix then
             if fixtureA == wallfixc then
                 hpwallc = hpwallc - 10
 
@@ -140,7 +175,26 @@ function love.update(dt)
                 break
             end
         end
+
+        if fixtureC == bulfix then
+            if fixtureD == npsfix then
+                npsb:destroy()
+                bulb:destroy()
+                break
+            end
+        end
+        
     end
+    
+
+    
+
+    if bulb:isDestroyed() then
+        bulb = love.physics.newBody( world, cityw-100, 100, 'dynamic' )
+        bulhit = love.physics.newRectangleShape( bulw, bulh )
+        bulfix = love.physics.newFixture( bulb, bulhit)
+    end
+
 
     if npsb:isDestroyed() then
         npsb = love.physics.newBody( world, cityw-100, 100, 'dynamic' )
@@ -169,8 +223,23 @@ function love.draw()
             love.graphics.draw(nps, npsb:getX(), npsb:getY(), 0, 1, 1, npsw/2, npsh/2)
              
         end
+        
+
+        if pos == true then
+            love.graphics.draw(solder, cityw/2 + 200, cityh/2 +300)
+
+            if not npsb:isDestroyed() then
+                love.graphics.draw(bul, bulb:getX(), bulb:getY(), 0, 1, 1)
+                 
+            end
+            
+            
+                 
+            
+        end    
 
         love.graphics.rectangle("fill", 100, 100, 50, 50, 0, 0, segments )
+        love.graphics.rectangle("fill", 300, 100, 50, 50, 0, 0, segments )
     end)
 
     love.graphics.print('hp = ' .. tostring(hpwallc), 0, 0)
@@ -201,3 +270,4 @@ function love.wheelmoved(x, y)
     local x, y = cam:toWorld(love.mouse.getX( ), love.mouse.getY( ))
     cam:setPosition(x, y)
 end
+
